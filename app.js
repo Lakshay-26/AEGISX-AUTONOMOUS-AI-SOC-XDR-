@@ -298,8 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             hideAuthError();
 
-            const emailOrUser = elements.inputEmail.value.trim().toLowerCase();
-            const password = elements.inputPassword.value;
+            const inputQuery = elements.inputEmail.value.trim().toLowerCase();
+            const inputPass = elements.inputPassword.value.trim();
             const inputName = elements.inputName.value.trim();
 
             if (state.authMode === 'register') {
@@ -314,21 +314,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                const existingEmail = state.registeredUsers.find(u => u.email.toLowerCase() === emailOrUser);
+                const existingEmail = state.registeredUsers.find(u => u.email.toLowerCase() === inputQuery);
                 if (existingEmail) {
-                    showAuthError(`Email "${emailOrUser}" is already registered! Please sign in.`);
+                    showAuthError(`Email "${inputQuery}" is already registered! Please switch to Sign In.`);
                     return;
                 }
 
-                if (password.length < 6) {
-                    showAuthError('Password must be at least 6 characters long!');
+                if (inputPass.length < 4) {
+                    showAuthError('Password must be at least 4 characters long!');
                     return;
                 }
 
                 const newUser = {
                     name: inputName,
-                    email: emailOrUser.includes('@') ? emailOrUser : `${inputName.toLowerCase().replace(/\s+/g, '')}@aegisx-cyber.io`,
-                    password: password,
+                    email: inputQuery.includes('@') ? inputQuery : `${inputName.toLowerCase().replace(/\s+/g, '')}@aegisx-cyber.io`,
+                    password: inputPass,
                     role: elements.selectRole.value,
                     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'
                 };
@@ -351,12 +351,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } else {
                 const foundUser = state.registeredUsers.find(u => 
-                    (u.email.toLowerCase() === emailOrUser || u.name.toLowerCase() === emailOrUser) && 
-                    u.password === password
+                    u.email.toLowerCase() === inputQuery || 
+                    u.name.toLowerCase() === inputQuery ||
+                    u.name.toLowerCase().split(' ')[0] === inputQuery
                 );
 
                 if (!foundUser) {
-                    showAuthError('Incorrect details! Invalid username/email or passcode.');
+                    showAuthError(`Account "${elements.inputEmail.value}" not found! Please check your username/email or click 'Register Commander'.`);
+                    return;
+                }
+
+                if (foundUser.password.trim() !== inputPass) {
+                    showAuthError('Incorrect passcode! Please check your password and try again.');
                     return;
                 }
 
